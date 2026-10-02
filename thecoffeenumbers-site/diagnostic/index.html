@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The quick check | The Coffee Numbers</title>
+<meta name="description" content="A five-minute quick check for coffee business owners. See where you stand, where to start, and choose how you'd like to work through it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FBF7F0;--crema:#F3E7D3;--espresso:#2B1A12;--muted:#6B5445;--line:#C9B49A;--terra:#A8481F;--sage:#7A8F6B;--white:#FFFFFF;--fd:'Fraunces',Georgia,serif;--fb:'DM Sans',system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--cream)}
+body{font-family:var(--fb);color:var(--espresso);font-size:18px;line-height:1.55;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+a{color:var(--terra)}
+h1,h2,h3{font-family:var(--fd);font-weight:600;margin:0;line-height:1.12}
+p{margin:0}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:24px 0}
+.logo{font-family:var(--fd);font-weight:600;font-size:26px;color:var(--espresso);text-decoration:none}
+.back{font-size:16px;font-weight:600;text-decoration:none}
+main{max-width:760px;margin:0 auto;padding:24px 24px 96px}
+.eyebrow{font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.progress{height:8px;background:var(--crema);border-radius:999px;overflow:hidden;margin:0 0 28px}
+.progress div{height:100%;width:0;background:var(--terra);transition:width .25s}
+h1{font-size:clamp(32px,5vw,46px);margin-bottom:12px}
+.help{font-size:18px;color:var(--muted);margin-bottom:24px}
+.opts{display:grid;gap:12px}
+.opt{display:block;width:100%;text-align:left;font:inherit;color:var(--espresso);background:var(--white);border:2px solid var(--line);border-radius:12px;padding:16px 18px;cursor:pointer;min-height:56px}
+.opt:hover{border-color:var(--terra)}
+.opt:focus-visible,.btn:focus-visible,a:focus-visible{outline:3px solid var(--terra);outline-offset:2px}
+.opt b{display:block;font-size:18px}
+.opt span{display:block;font-size:15px;color:var(--muted);margin-top:2px}
+.opt.sel{border-color:var(--terra);background:#FFF5EE}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 26px;background:var(--terra);color:#fff;border:0;border-radius:10px;font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
+.btn:hover{background:#8F3C18}
+.btn.alt{background:transparent;color:var(--espresso);border:2px solid var(--espresso)}
+.btn.alt:hover{background:var(--crema)}
+.privacy{font-size:15px;color:var(--muted);margin-top:28px}
+.card{background:var(--crema);border-radius:16px;padding:26px;margin-bottom:20px}
+.card h2{font-size:26px;margin-bottom:12px}
+.areas{display:grid;gap:10px}
+.area{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--white);border-radius:10px;padding:12px 16px}
+.chip{font-size:14px;font-weight:700;padding:4px 12px;border-radius:999px;white-space:nowrap}
+.chip.ok{background:#E4EADD;color:#3F5236}
+.chip.part{background:#F6E7C9;color:#6B4A0B}
+.chip.gap{background:#F3D6CB;color:#8A2F10}
+.chip.unk{background:#E8E3DA;color:#5A4A3D}
+.start{background:var(--espresso);color:#F3E7D3;border-radius:16px;padding:26px;margin-bottom:20px}
+.start h2{font-size:26px;margin-bottom:10px;color:#F3E7D3}
+.start p{color:#F3E7D3}
+.start .note{margin-top:12px;font-size:16px;opacity:.9}
+.routes{display:grid;gap:12px}
+.route{display:block;text-decoration:none;color:var(--espresso);background:var(--white);border:2px solid var(--line);border-radius:12px;padding:18px}
+.route:hover{border-color:var(--terra)}
+.route.rec{border-color:var(--terra);background:#FFF5EE}
+.route b{font-family:var(--fd);font-size:22px;display:block}
+.route span{display:block;color:var(--muted);font-size:16px;margin-top:2px}
+.tagrec{display:inline-block;font-size:16px;font-weight:700;color:#fff;background:#8F3C18;padding:6px 14px;border-radius:999px;margin-bottom:10px;line-height:1.2}
+.hidden{display:none}
+@media (max-width:860px){.wrap{padding:0 20px}main{padding:16px 20px 80px}}
+</style>
+</head>
+<body>
+<div class="wrap"><header class="nav"><a class="logo" href="../">The Coffee Numbers</a><a class="back" href="../">&larr; Back to the site</a></header></div>
+<main>
+<div id="bar" class="progress" aria-hidden="true"><div id="barfill"></div></div>
+<section id="screen" aria-live="polite"></section>
+<p class="privacy">Your answers stay on this page. Nothing is stored or sent unless you choose to email me.</p>
+</main>
+
+<script>
+var QS = {
+  start: { title: "Which sounds like you?", help: "There's no wrong answer, and you can change it later.", opts: [
+    { v: "starting", t: "I'm just starting out", s: "New to the numbers side of the business" },
+    { v: "basics", t: "I know the basics", s: "I want to be sure what's working, and what to do next" },
+    { v: "numbers", t: "I know my numbers", s: "I want a sharper view and a second pair of eyes" },
+    { v: "multi", t: "I run more than one site", s: "I want to see each site and the whole business" } ] },
+  mind: { title: "What's on your mind most right now?", help: "Pick the one that keeps coming back.", opts: [
+    { v: "cash", t: "Cash", s: "Will there be enough, and when is it tight?" },
+    { v: "margin", t: "What I really make", s: "Which items and channels earn their place?" },
+    { v: "rota", t: "Staffing", s: "Is my rota matched to when I'm busy?" },
+    { v: "pricing", t: "Pricing", s: "Should I change what I charge?" },
+    { v: "growth", t: "Growing", s: "A new site, channel or big investment" },
+    { v: "notsure", t: "I'm not sure", s: "That's fine. The next questions will help." } ] },
+  traded: { title: "How long have you been trading?", help: "It tells us how much history there is to learn from.", opts: [
+    { v: "lt1", t: "Under a year" }, { v: "1to3", t: "One to three years" }, { v: "gt3", t: "More than three years" } ] },
+  sites: { title: "How many sites do you have?", help: "", opts: [
+    { v: "2-3", t: "Two or three" }, { v: "4-7", t: "Four to seven" }, { v: "8+", t: "Eight or more" } ] },
+  sametill: { title: "Do all your sites use the same till and reports?", help: "Roughly is fine.", opts: [
+    { v: "yes", t: "Yes" }, { v: "no", t: "No, they differ" }, { v: "unsure", t: "I'm not sure" } ] },
+  d1: { title: "Can you get your sales out of your till, by item or by hour?", help: "For example, an export or report you can download.", data: true },
+  d2: { title: "Do you know what each item costs you to make?", help: "The ingredients and packaging in each drink or item.", data: true },
+  d3: { title: "Do you have your rota and staff costs, by shift?", help: "Hours and cost for each person or role.", data: true },
+  d4: { title: "Do you look ahead at cash, at least a few months?", help: "A forecast of money in and out, including the big bills.", data: true },
+  d5: { title: "Do you track a short list of key numbers each month?", help: "For example margin, labour % or sales against last year.", data: true },
+  d6: { title: "Do you have a plan or budget with targets for the year?", help: "Even a simple one counts.", data: true },
+  way: { title: "How would you like to work through it?", help: "This changes the route we suggest, and you can still choose another.", opts: [
+    { v: "myself", t: "On my own, with good tools", s: "Self-serve" },
+    { v: "withme", t: "Together with Chris", s: "A conversation and a monthly review" },
+    { v: "unsure", t: "I'm not sure", s: "Suggest what fits" } ] }
+};
+var DATA_OPTS = [ { v: "yes", t: "Yes" }, { v: "partly", t: "Partly" }, { v: "no", t: "No" }, { v: "unsure", t: "I'm not sure" } ];
+var AREAS = ["Sales and cash", "Margin and staffing", "Key numbers", "Pricing"];
+var FIRST = { "Sales and cash": "a one-page starter plan and a look-ahead of your cash, including the quiet months",
+  "Margin and staffing": "a margin map of what each item earns, and your rota set against when you're busy",
+  "Key numbers": "a short list of key numbers, with targets and a way to track them",
+  "Pricing": "a review of your prices, based on what each item really earns" };
+var RANK = { yes: 0, partly: 1, unsure: 2, no: 3 };
+
+var A = {}, hist = [], cur = null;
+
+function nextId(id) {
+  var order = ["start", "mind", "traded"];
+  if (A.start === "multi") order = order.concat(["sites", "sametill"]);
+  order = order.concat(["d1", "d2", "d3", "d4", "d5", "d6", "way"]);
+  var i = order.indexOf(id);
+  return i >= 0 && i < order.length - 1 ? order[i + 1] : "result";
+}
+function totalSteps() { return A.start === "multi" ? 12 : 10; }
+
+function worst(list) {
+  var w = "yes";
+  list.forEach(function (k) { var s = A[k] || "unsure"; if (RANK[s] > RANK[w]) w = s; });
+  return w;
+}
+function compute() {
+  var st = {};
+  st["Sales and cash"] = worst(["d1", "d4", "d6"]);
+  st["Margin and staffing"] = worst(["d2", "d3"]);
+  st["Key numbers"] = worst(["d5"]);
+  st["Pricing"] = worst(["d1", "d2"]);
+  var score = 0;
+  ["d1", "d2", "d3", "d4", "d5", "d6"].forEach(function (k) {
+    var v = A[k]; score += v === "no" ? 1 : (v === "partly" || v === "unsure") ? 0.5 : 0;
+  });
+  var band = A.d1 === "no" ? "notyet" : score <= 1.5 ? "ready" : score <= 3.5 ? "partly" : "notyet";
+  var mindArea = { cash: "Sales and cash", margin: "Margin and staffing", rota: "Margin and staffing", pricing: "Pricing", growth: "Sales and cash" }[A.mind];
+  var where = null, note = "";
+  if (mindArea && st[mindArea] !== "yes") where = mindArea;
+  if (where === "Pricing" && (A.d2 === "no" || A.d2 === "unsure")) {
+    where = "Margin and staffing";
+    note = "You mentioned pricing. A price review needs your costs per item first, so we'd start there. In the meantime, the free margin calculator has a price what-if you can try today.";
+  }
+  if (!where) { AREAS.forEach(function (a) { if (!where && st[a] !== "yes") where = a; }); }
+  if (!where) where = "Key numbers";
+  var info = freeInfo();
+  var route;
+  if (A.start === "multi") route = "chat";
+  else if (A.way === "withme") route = "chat";
+  else if (A.way === "myself") route = (info.closes.length && !worryMissed(info)) ? "free" : "self";
+  else route = band === "notyet" ? ((info.closes.length && !worryMissed(info)) ? "free" : "chat") : "chat";
+  return { st: st, band: band, where: where, note: note, route: route };
+}
+var GAPLABEL = { d1: "getting your sales out of the till", d2: "knowing what each item costs", d3: "your rota and staff costs", d4: "a cash look-ahead", d5: "a short list of key numbers", d6: "a plan with targets" };
+var CLOSERS = {
+  d2: { tool: "the margin calculator", does: "works out what each drink costs and what you keep" },
+  d3: { tool: "the hire calculator", does: "shows what a new hire would need to bring in (it helps with hiring decisions, not the full rota)" }
+};
+var WORRY = { cash: ["d4"], margin: ["d2"], rota: ["d3"], pricing: ["d2"] };
+var WORRYNAME = { cash: "cash", margin: "what you really make", rota: "staffing", pricing: "pricing" };
+function worryMissed(f) {
+  var w = WORRY[A.mind] || [];
+  var gapsInWorry = w.filter(function (k) { return f.gaps.indexOf(k) >= 0; });
+  return gapsInWorry.length > 0 && !gapsInWorry.some(function (k) { return f.closes.indexOf(k) >= 0; });
+}
+function freeInfo() {
+  var gaps = ["d1", "d2", "d3", "d4", "d5", "d6"].filter(function (k) { return A[k] !== "yes"; });
+  var closes = gaps.filter(function (k) { return CLOSERS[k]; });
+  var open = gaps.filter(function (k) { return !CLOSERS[k]; });
+  var extra = (A.mind === "growth" || A.mind === "margin" || A.mind === "notsure") ? "the attach rate calculator shows what selling more food with coffee could be worth" : "";
+  return { gaps: gaps, closes: closes, open: open, extra: extra };
+}
+function label(s) { return { yes: ["In place", "ok"], partly: ["Partly", "part"], no: ["A gap", "gap"], unsure: ["Not sure yet", "unk"] }[s]; }
+
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+function setBar(id) {
+  var order = ["start", "mind", "traded"]; if (A.start === "multi") order = order.concat(["sites", "sametill"]);
+  order = order.concat(["d1", "d2", "d3", "d4", "d5", "d6", "way"]);
+  var i = order.indexOf(id); var pct = id === "result" ? 100 : Math.max(4, Math.round(i / order.length * 100));
+  document.getElementById("barfill").style.width = pct + "%";
+}
+
+function show(id) {
+  cur = id; setBar(id);
+  var root = document.getElementById("screen"); root.innerHTML = "";
+  if (id === "result") return result(root);
+  var q = QS[id];
+  var n = hist.length + 1;
+  root.appendChild(el("p", "eyebrow", "Question " + n));
+  var h = el("h1", null, esc(q.title)); h.setAttribute("tabindex", "-1"); root.appendChild(h);
+  if (q.help) root.appendChild(el("p", "help", esc(q.help)));
+  var opts = el("div", "opts"); opts.setAttribute("role", "group"); opts.setAttribute("aria-label", q.title);
+  (q.data ? DATA_OPTS : q.opts).forEach(function (o) {
+    var b = el("button", "opt" + (A[id] === o.v ? " sel" : ""), "<b>" + esc(o.t) + "</b>" + (o.s ? "<span>" + esc(o.s) + "</span>" : ""));
+    b.type = "button";
+    b.addEventListener("click", function () { A[id] = o.v; hist.push(id); show(nextId(id)); });
+    opts.appendChild(b);
+  });
+  root.appendChild(opts);
+  if (hist.length) {
+    var r = el("div", "row"); var back = el("button", "btn alt", "Back"); back.type = "button";
+    back.addEventListener("click", function () { var prev = hist.pop(); show(prev); });
+    r.appendChild(back); root.appendChild(r);
+  }
+  h.focus({ preventScroll: true });
+}
+
+function mailHref(res, route) {
+  var names = { starting: "just starting out", basics: "I know the basics", numbers: "I know my numbers", multi: "several sites" };
+  var lines = ["Hi Chris,", "", "I tried the quick check.", "Where I am: " + names[A.start], "On my mind: " + (A.mind || ""),
+    "Trading: " + (A.traded || "") + (A.sites ? " | Sites: " + A.sites + " (same till: " + (A.sametill || "") + ")" : ""),
+    "Data: sales " + A.d1 + ", item costs " + A.d2 + ", rota " + A.d3 + ", cash look-ahead " + A.d4 + ", key numbers " + A.d5 + ", plan " + A.d6,
+    "Suggested start: " + res.where, "Route chosen: " + route, "", "I'd like to talk it through."];
+  return "mailto:chris@thecoffeenumbers.com?subject=" + encodeURIComponent("Quick check: " + names[A.start]) + "&body=" + encodeURIComponent(lines.join("\n"));
+}
+
+function freeText(res) {
+  var f = freeInfo();
+  if (!f.gaps.length) return "You've got the basics covered. The free tools are still handy for quick what-ifs.";
+  if (!f.closes.length) {
+    var t = "The free tools don't cover your gaps yet (" + f.gaps.map(function (k) { return GAPLABEL[k]; }).join(", ") + "). They're there to explore, but a conversation will get you further.";
+    return f.extra ? t + " One that may still interest you: " + f.extra + "." : t;
+  }
+  var pre = worryMissed(f) ? "They don't cover your main worry (" + WORRYNAME[A.mind] + "), but can still help with other gaps. " : "";
+  var closers = f.closes.map(function (k) { return CLOSERS[k].tool + " (" + GAPLABEL[k] + ")"; });
+  var out = pre + "Can help you close " + f.closes.length + " of your " + f.gaps.length + " gap" + (f.gaps.length === 1 ? "" : "s") + ": " + closers.join(" and ") + ".";
+  if (f.extra) out += " Also: " + f.extra + ".";
+  if (f.open.length) out += " Still open: " + f.open.map(function (k) { return GAPLABEL[k]; }).join(", ") + ". That's where the next step helps.";
+  return out;
+}
+function result(root) {
+  var res = compute();
+  root.appendChild(el("p", "eyebrow", "Your quick check"));
+  var h = el("h1", null, "Here's where you are"); h.setAttribute("tabindex", "-1"); root.appendChild(h);
+  root.appendChild(el("p", "help", "A first picture, from your answers. It isn't a verdict. We'd check each part together."));
+
+  var c1 = el("div", "card"); c1.appendChild(el("h2", null, "What you have today"));
+  var areas = el("div", "areas");
+  AREAS.forEach(function (a) { var l = label(res.st[a]); areas.appendChild(el("div", "area", "<span>" + esc(a) + "</span><span class='chip " + l[1] + "'>" + l[0] + "</span>")); });
+  c1.appendChild(areas); root.appendChild(c1);
+
+  var s = el("div", "start"); s.appendChild(el("h2", null, "Where I'd start"));
+  s.appendChild(el("p", null, "<b>" + esc(res.where) + "</b>: " + esc(FIRST[res.where]) + "."));
+  if (res.note) s.appendChild(el("p", "note", esc(res.note)));
+  var bandTxt = { ready: "You're in good shape to get going straight away.", partly: "You've got some of the basics. We'd fill the gaps first, then build on them.", notyet: "There's a bit to put in place first. The free tools and a starter plan are the best way in." }[res.band];
+  s.appendChild(el("p", "note", esc(bandTxt)));
+  root.appendChild(s);
+
+  var c2 = el("div", "card"); c2.appendChild(el("h2", null, "How would you like to take it from here?"));
+  c2.appendChild(el("p", "help", "I've suggested one. Choose any, whichever suits you."));
+  var routes = el("div", "routes");
+  var R = [
+    { k: "free", href: "../free-resources/", t: "Use the free tools", d: freeText(res) },
+    { k: "self", href: "../coming-soon.html?tier=member", t: "Self-serve", d: "A system you update each month, with your history, live sessions and a monthly note. Coming soon: register your interest." },
+    { k: "chat", href: mailHref(res, "30-minute chat"), t: "A 30-minute chat with Chris", d: "We go through this together, and agree where to start. Free, no obligation." }
+  ];
+  R.forEach(function (r) {
+    var a = el("a", "route" + (r.k === res.route ? " rec" : ""), (r.k === res.route ? "<span class='tagrec'>Suggested for you</span>" : "") + "<b>" + esc(r.t) + "</b><span>" + esc(r.d) + "</span>");
+    a.href = r.href; routes.appendChild(a);
+  });
+  c2.appendChild(routes); root.appendChild(c2);
+
+  var r2 = el("div", "row"); var again = el("button", "btn alt", "Change my answers"); again.type = "button";
+  again.addEventListener("click", function () { var prev = hist.pop(); show(prev); });
+  r2.appendChild(again); root.appendChild(r2);
+  h.focus({ preventScroll: true });
+}
+
+(function () {
+  var p = new URLSearchParams(window.location.search).get("start");
+  if (p && QS.start.opts.some(function (o) { return o.v === p; })) { A.start = p; hist.push("start"); show("mind"); }
+  else show("start");
+})();
+</script>
+</body>
+</html>
