@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coming soon | The Coffee Numbers</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#FBF7F0}
+body{font-family:'DM Sans',system-ui,sans-serif;color:#2B1A12;font-size:18px;line-height:1.6;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+.nav{padding:24px 0}
+.logo{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:26px;color:#2B1A12;text-decoration:none}
+main{max-width:640px;margin:0 auto;padding:56px 24px 96px;text-align:center}
+.eyebrow{margin:0 0 16px;font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6B5445}
+h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:clamp(38px,6vw,56px);line-height:1.08;margin:0 0 20px}
+.lede{font-size:20px;color:#6B5445;margin:0 0 12px}
+.card{background:#F3E7D3;border-radius:16px;padding:32px;margin-top:32px;text-align:left}
+label{display:block;font-weight:600;margin-bottom:8px}
+input[type=email]{width:100%;min-height:52px;padding:0 16px;font:inherit;border:2px solid #C9B49A;border-radius:10px;background:#FFFFFF;color:#2B1A12}
+input[type=email]:focus{outline:3px solid #A8481F;outline-offset:2px;border-color:#A8481F}
+button{margin-top:16px;width:100%;min-height:52px;padding:0 28px;background:#A8481F;color:#FFFFFF;border:0;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}
+button:hover{background:#8F3C18}
+.note{font-size:15px;color:#6B5445;margin:14px 0 0}
+.thanks{display:none;text-align:center}
+.thanks h2{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:30px;margin:0 0 8px}
+.back{display:inline-block;margin-top:28px;color:#A8481F;font-weight:600}
+@media (max-width:860px){.wrap{padding:0 20px}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="nav"><a class="logo" href="index.html">The Coffee Numbers</a></div></div>
+<main>
+<p class="eyebrow">Coming soon</p>
+<h1 id="title">The community is coming soon.</h1>
+<p class="lede" id="blurb">Leave your email and I'll let you know the moment it opens.</p>
+<div class="card" id="card">
+<form id="form" novalidate>
+<input type="hidden" name="tier" id="tier" value="">
+<label for="email">Your email</label>
+<input type="email" id="email" name="email" autocomplete="email" placeholder="you@yourcoffeeshop.com" required>
+<button type="submit">Register interest</button>
+<p class="note" id="err" role="alert" style="color:#A8481F;display:none">Please enter a valid email address.</p>
+<p class="note">I'll only use your email to tell you when this opens.</p>
+</form>
+<div class="thanks" id="thanks" role="status">
+<h2>Thanks, you're on the list.</h2>
+<p class="lede" style="margin:0">I'll be in touch as soon as it opens.</p>
+</div>
+</div>
+<a class="back" href="index.html">&larr; Back to The Coffee Numbers</a>
+</main>
+<script>
+// To collect emails properly, paste your form endpoint here (for example a Formspree URL).
+// While this is empty, submitting opens a pre-filled email to you instead.
+var FORM_ENDPOINT = "";
+var OWNER_EMAIL = "chris_williams01@outlook.com";
+
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var tier = params.get("tier") === "member" ? "member" : "free";
+  document.getElementById("tier").value = tier;
+  if (tier === "member") {
+    document.getElementById("title").textContent = "Membership is coming soon.";
+    document.getElementById("blurb").textContent = "Everything in Free, all the content self-serve, and webinars to back it up. Leave your email and I'll let you know the moment it opens.";
+  } else {
+    document.getElementById("title").textContent = "The free community is coming soon.";
+    document.getElementById("blurb").textContent = "Starter resources, calculators and education for new owners. Leave your email and I'll let you know the moment it opens.";
+  }
+
+  var form = document.getElementById("form");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = document.getElementById("email").value.trim();
+    var err = document.getElementById("err");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.style.display = "block"; return; }
+    err.style.display = "none";
+    function done() {
+      form.style.display = "none";
+      document.getElementById("thanks").style.display = "block";
+    }
+    if (FORM_ENDPOINT) {
+      fetch(FORM_ENDPOINT, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } })
+        .then(function (r) { if (r.ok) { done(); } else { err.textContent = "Something went wrong. Please try again."; err.style.display = "block"; } })
+        .catch(function () { err.textContent = "Something went wrong. Please try again."; err.style.display = "block"; });
+    } else {
+      var subject = encodeURIComponent("Register interest: " + (tier === "member" ? "Membership" : "Free community"));
+      var body = encodeURIComponent("Please add me to the list.\n\nEmail: " + email);
+      window.location.href = "mailto:" + OWNER_EMAIL + "?subject=" + subject + "&body=" + body;
+      done();
+    }
+  });
+})();
+</script>
+</body>
+</html>
