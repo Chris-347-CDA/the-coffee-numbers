@@ -21,8 +21,10 @@ p{margin:0}
 .back{font-size:16px;font-weight:600;text-decoration:none}
 main{max-width:760px;margin:0 auto;padding:24px 24px 96px}
 .eyebrow{font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.progress{height:8px;background:var(--crema);border-radius:999px;overflow:hidden;margin:0 0 28px}
-.progress div{height:100%;width:0;background:var(--terra);transition:width .25s}
+.pbar{position:sticky;top:0;z-index:5;background:var(--cream);padding:10px 0 14px;margin:0 0 20px}
+.plabel{display:flex;justify-content:space-between;gap:12px;font-size:15px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.progress{height:14px;background:#E6D8BF;border-radius:999px;overflow:hidden}
+.progress div{height:100%;width:0;background:var(--terra);border-radius:999px;transition:width .3s}
 h1{font-size:clamp(32px,5vw,46px);margin-bottom:12px}
 .help{font-size:18px;color:var(--muted);margin-bottom:24px}
 .opts{display:grid;gap:12px}
@@ -58,6 +60,7 @@ h1{font-size:clamp(32px,5vw,46px);margin-bottom:12px}
 .route b{font-family:var(--fd);font-size:22px;display:block}
 .route span{display:block;color:var(--muted);font-size:16px;margin-top:2px}
 .tagrec{display:inline-block;font-size:16px;font-weight:700;color:#fff;background:#8F3C18;padding:6px 14px;border-radius:999px;margin-bottom:10px;line-height:1.2}
+.route .tagrec{display:inline-block;font-size:16px;font-weight:700;color:#FFFFFF;background:#8F3C18;padding:6px 14px;border-radius:999px;margin:0 0 10px;line-height:1.2}
 .hidden{display:none}
 @media (max-width:860px){.wrap{padding:0 20px}main{padding:16px 20px 80px}}
 </style>
@@ -65,7 +68,7 @@ h1{font-size:clamp(32px,5vw,46px);margin-bottom:12px}
 <body>
 <div class="wrap"><header class="nav"><a class="logo" href="../">The Coffee Numbers</a><a class="back" href="../">&larr; Back to the site</a></header></div>
 <main>
-<div id="bar" class="progress" aria-hidden="true"><div id="barfill"></div></div>
+<div class="pbar" id="pbar" role="progressbar" aria-label="Quick check progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="plabel"><span id="pstep">Question 1</span><span id="ptime"></span></div><div class="progress"><div id="barfill"></div></div></div>
 <section id="screen" aria-live="polite"></section>
 <p class="privacy">Your answers stay on this page. Nothing is stored or sent unless you choose to email me.</p>
 </main>
@@ -177,11 +180,27 @@ function label(s) { return { yes: ["In place", "ok"], partly: ["Partly", "part"]
 function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
+var preset = false;
+function steps() {
+  var o = ["mind", "traded"];
+  if (A.start === "multi") o = o.concat(["sites", "sametill"]);
+  o = o.concat(["d1", "d2", "d3", "d4", "d5", "d6", "way"]);
+  if (!preset) o.unshift("start");
+  return o;
+}
 function setBar(id) {
-  var order = ["start", "mind", "traded"]; if (A.start === "multi") order = order.concat(["sites", "sametill"]);
-  order = order.concat(["d1", "d2", "d3", "d4", "d5", "d6", "way"]);
-  var i = order.indexOf(id); var pct = id === "result" ? 100 : Math.max(4, Math.round(i / order.length * 100));
-  document.getElementById("barfill").style.width = pct + "%";
+  var o = steps(), n = o.length, i = o.indexOf(id);
+  var fill = document.getElementById("barfill"), step = document.getElementById("pstep"), time = document.getElementById("ptime"), bar = document.getElementById("pbar");
+  var pct;
+  if (id === "result") { pct = 100; step.textContent = "All done"; time.textContent = "Your result is ready"; }
+  else {
+    if (i < 0) i = 0;
+    pct = Math.max(6, Math.round(i / n * 100));
+    step.textContent = "Question " + (i + 1) + " of " + n;
+    time.textContent = "About " + Math.max(1, Math.ceil((n - i) * 20 / 60)) + " min left";
+  }
+  fill.style.width = pct + "%";
+  bar.setAttribute("aria-valuenow", pct);
 }
 
 function show(id) {
@@ -189,8 +208,6 @@ function show(id) {
   var root = document.getElementById("screen"); root.innerHTML = "";
   if (id === "result") return result(root);
   var q = QS[id];
-  var n = hist.length + 1;
-  root.appendChild(el("p", "eyebrow", "Question " + n));
   var h = el("h1", null, esc(q.title)); h.setAttribute("tabindex", "-1"); root.appendChild(h);
   if (q.help) root.appendChild(el("p", "help", esc(q.help)));
   var opts = el("div", "opts"); opts.setAttribute("role", "group"); opts.setAttribute("aria-label", q.title);
@@ -272,7 +289,7 @@ function result(root) {
 
 (function () {
   var p = new URLSearchParams(window.location.search).get("start");
-  if (p && QS.start.opts.some(function (o) { return o.v === p; })) { A.start = p; hist.push("start"); show("mind"); }
+  if (p && QS.start.opts.some(function (o) { return o.v === p; })) { A.start = p; preset = true; hist.push("start"); show("mind"); }
   else show("start");
 })();
 </script>
