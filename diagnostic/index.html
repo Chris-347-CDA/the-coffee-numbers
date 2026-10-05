@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The quick check | The Coffee Numbers</title>
-<meta name="description" content="A five-minute quick check for coffee business owners. See where you stand, where to start, and choose how you'd like to work through it.">
+<title>Your health check | The Coffee Numbers</title>
+<meta name="description" content="A five-minute health check start for coffee business owners. See where you stand, where to start, and choose how you'd like to work through it.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -64,13 +64,76 @@ h1{font-size:clamp(32px,5vw,46px);margin-bottom:12px}
 .hidden{display:none}
 @media (max-width:860px){.wrap{padding:0 20px}main{padding:16px 20px 80px}}
 </style>
+<!-- Analytics: Google Analytics loads only after the visitor says yes -->
+<style>
+#tcn-cc{position:fixed;left:12px;right:12px;bottom:12px;max-width:560px;margin:0 auto;background:#2B1A12;color:#FBF7F0;border-radius:14px;padding:16px 18px;font:15px/1.45 'DM Sans',system-ui,sans-serif;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,.28)}
+#tcn-cc p{margin:0 0 12px}
+#tcn-cc a{color:#D3A45F}
+#tcn-cc button{font:600 15px 'DM Sans',system-ui,sans-serif;border:0;border-radius:10px;padding:11px 16px;cursor:pointer;margin:0 8px 0 0}
+#tcn-cc .y{background:#A8481F;color:#fff}
+#tcn-cc .n{background:transparent;color:#FBF7F0;border:1px solid #6B5445}
+</style>
+<script>
+(function () {
+  var ID = "G-EE1BEVNYYF", KEY = "tcn_cookie_choice", PRIV = "../privacy.html";
+  function load() {
+    if (window.__tcnGA) return; window.__tcnGA = 1;
+    var s = document.createElement("script"); s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + ID; document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag("js", new Date());
+    window.gtag("config", ID, { allow_google_signals: false, allow_ad_personalization_signals: false });
+  }
+  window.tcnTrack = function (name, params) { try { if (window.gtag) window.gtag("event", name, params || {}); } catch (e) {} };
+  function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+  function clearGA() {
+    document.cookie.split(";").forEach(function (c) {
+      var n = c.split("=")[0].trim();
+      if (n.indexOf("_ga") === 0) {
+        var host = location.hostname.split(".");
+        document.cookie = n + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        document.cookie = n + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + location.hostname;
+        if (host.length > 1) document.cookie = n + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + host.slice(-2).join(".");
+      }
+    });
+  }
+  function banner() {
+    if (document.getElementById("tcn-cc")) return;
+    var d = document.createElement("div"); d.id = "tcn-cc"; d.setAttribute("role", "dialog"); d.setAttribute("aria-label", "Cookie choice");
+    d.innerHTML = '<p>I use Google Analytics to see which pages people visit and how long they stay. It only runs if you say yes. <a href="' + PRIV + '">Privacy</a></p>' +
+      '<button type="button" class="y">Yes, that\u2019s fine</button><button type="button" class="n">No thanks</button>';
+    d.querySelector(".y").addEventListener("click", function () { set("granted"); d.remove(); load(); });
+    d.querySelector(".n").addEventListener("click", function () {
+      var was = get(); set("denied"); d.remove();
+      if (was === "granted") { clearGA(); location.reload(); }
+    });
+    document.body.appendChild(d);
+  }
+  window.tcnCookieSettings = banner;
+  var c = get();
+  if (c === "granted") load();
+  else if (c !== "denied") {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", banner); else banner();
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a"); if (!a) return;
+    var h = a.getAttribute("href") || "", t = (a.textContent || "").trim().slice(0, 40), p = location.pathname;
+    if (h.indexOf("mailto:") === 0) window.tcnTrack("email_click", { page: p });
+    else if (h.indexOf("diagnostic") > -1) window.tcnTrack("health_check_click", { page: p, text: t });
+    else if (h.indexOf("free-resources") > -1) window.tcnTrack("free_tools_click", { page: p, text: t });
+  });
+})();
+</script>
 </head>
 <body>
 <div class="wrap"><header class="nav"><a class="logo" href="../">The Coffee Numbers</a><a class="back" href="../">&larr; Back to the site</a></header></div>
 <main>
-<div class="pbar" id="pbar" role="progressbar" aria-label="Quick check progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="plabel"><span id="pstep">Question 1</span><span id="ptime"></span></div><div class="progress"><div id="barfill"></div></div></div>
+<div class="pbar" id="pbar" role="progressbar" aria-label="Health check progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="plabel"><span id="pstep">Question 1</span><span id="ptime"></span></div><div class="progress"><div id="barfill"></div></div></div>
 <section id="screen" aria-live="polite"></section>
 <p class="privacy">Your answers stay on this page. Nothing is stored or sent unless you choose to email me.</p>
+<p class="privacy">General information and illustrations only, not financial, tax, legal or accounting advice. Figures are estimates and ranges, not promises. For those questions, check with a qualified adviser.</p>
 </main>
 
 <script>
@@ -205,6 +268,7 @@ function setBar(id) {
 
 function show(id) {
   cur = id; setBar(id);
+  try { if (window.tcnTrack) { if (id === "result") window.tcnTrack("health_check_complete", { start: A.start || "" }); else window.tcnTrack("health_check_step", { step: String(id) }); } } catch (e) {}
   var root = document.getElementById("screen"); root.innerHTML = "";
   if (id === "result") return result(root);
   var q = QS[id];
@@ -228,11 +292,11 @@ function show(id) {
 
 function mailHref(res, route) {
   var names = { starting: "just starting out", basics: "I know the basics", numbers: "I know my numbers", multi: "several sites" };
-  var lines = ["Hi Chris,", "", "I tried the quick check.", "Where I am: " + names[A.start], "On my mind: " + (A.mind || ""),
+  var lines = ["Hi Chris,", "", "I started the health check.", "Where I am: " + names[A.start], "On my mind: " + (A.mind || ""),
     "Trading: " + (A.traded || "") + (A.sites ? " | Sites: " + A.sites + " (same till: " + (A.sametill || "") + ")" : ""),
     "Data: sales " + A.d1 + ", item costs " + A.d2 + ", rota " + A.d3 + ", cash look-ahead " + A.d4 + ", key numbers " + A.d5 + ", plan " + A.d6,
     "Suggested start: " + res.where, "Route chosen: " + route, "", "I'd like to talk it through."];
-  return "mailto:chris@thecoffeenumbers.com?subject=" + encodeURIComponent("Quick check: " + names[A.start]) + "&body=" + encodeURIComponent(lines.join("\n"));
+  return "mailto:chris@thecoffeenumbers.com?subject=" + encodeURIComponent("Health check: " + names[A.start]) + "&body=" + encodeURIComponent(lines.join("\n"));
 }
 
 function freeText(res) {
@@ -251,7 +315,7 @@ function freeText(res) {
 }
 function result(root) {
   var res = compute();
-  root.appendChild(el("p", "eyebrow", "Your quick check"));
+  root.appendChild(el("p", "eyebrow", "Your health check"));
   var h = el("h1", null, "Here's where you are"); h.setAttribute("tabindex", "-1"); root.appendChild(h);
   root.appendChild(el("p", "help", "A first picture, from your answers. It isn't a verdict. We'd check each part together."));
 
