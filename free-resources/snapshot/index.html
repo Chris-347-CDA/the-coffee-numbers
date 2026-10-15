@@ -197,6 +197,18 @@
   .notice .agree { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
   .after { display: grid; gap: 14px; margin-top: 14px; }
   .upsell { background: var(--accent-soft); }
+
+  .share { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: 14.5px; line-height: 1.5; cursor: pointer; }
+  .share input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+  .hcprev { margin-top: 18px; border: 2px dashed var(--line); border-radius: 14px; background: var(--card, #fff); padding: 16px; display: grid; gap: 12px; }
+  .hcprev .tag { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .hcprev .carried { background: var(--accent-soft); border-radius: 12px; padding: 14px 16px; }
+  .hcprev .carried h4 { margin: 0 0 6px; font-size: 1.05rem; }
+  .hcprev .carried ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 14.5px; }
+  .hcprev .carried li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding: 3px 0; }
+  .hcprev .mail { background: #fff; color: #222; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 13.5px/1.5 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; }
+  .hcprev .mini { font-size: 13.5px; color: var(--muted); margin: 0; }
+  .hcprev button.link { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; font: inherit; cursor: pointer; }
   .btnrow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
   button.btn { border: 0; cursor: pointer; font-family: inherit; }
   .btn.ghost { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
@@ -465,7 +477,9 @@
       <div class="card upsell">
         <h3>Want more than a directional read?</h3>
         <p>This tool works from a handful of numbers you typed in. The health check goes further: we measure everything properly from your real till and accounts data, and you get advice built around your shop, not typical ranges. Have a chat with Chris and see if it fits.</p>
-        <div class="btnrow"><a target="_blank" rel="noopener" class="btn" data-track="snapshot_cta_click" data-place="pitch" href="https://thecoffeenumbers.com/diagnostic/">Start your health check</a><a target="_blank" rel="noopener" class="btn ghost" data-track="chat_click" data-place="pitch" href="mailto:chris@thecoffeenumbers.com?subject=Chat%20about%20a%20health%20check">Have a chat with Chris</a></div>
+        <label class="share"><input type="checkbox" id="shareSnap"><span><b>Carry my snapshot numbers over</b> so they show on the health check page, and include them if I email Chris. They stay on this device until you press send on an email.</span></label>
+        <div class="btnrow"><a target="_blank" rel="noopener" class="btn" id="startHC" data-track="snapshot_cta_click" data-place="pitch" href="https://thecoffeenumbers.com/diagnostic/">Start your health check</a><a target="_blank" rel="noopener" class="btn ghost" id="chatHC" data-track="chat_click" data-place="pitch" href="mailto:chris@thecoffeenumbers.com?subject=Chat%20about%20a%20health%20check">Have a chat with Chris</a></div>
+        <div class="hcprev" id="hcPrev" hidden></div>
       </div>
       <div class="card save noprint">
         <h3>Keep a copy of your results</h3>
@@ -2156,6 +2170,54 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   FIELDS.forEach(function (id) {
     $(id).addEventListener('input', function () { if (exampleOn) { exampleOn = null; syncChips(); } else track('tool_start', {}, true); render(); });
   });
+
+  // ---------- hand-off to the health check ----------
+  // Ticked: the numbers are saved on this device (same site as the health check) and added to the email to Chris.
+  var HK = 'tcn_snapshot_handoff';
+  var LIVE = /(^|\.)thecoffeenumbers\.com$/.test(location.hostname);
+  var LBL = [['revenue', 'Sales a month', 1], ['txWeek', 'Customers a week', 0], ['rent', 'Rent, rates and service charge', 1], ['wages', 'Wages', 1], ['cogs', 'Cost of goods', 1], ['otherCosts', 'Other costs', 1], ['loanPay', 'Loan repayments', 1], ['ownerPay', 'Your pay', 1]];
+  function money(n) { return '£' + Math.round(n).toLocaleString('en-GB'); }
+  function carried() {
+    var o = []; LBL.forEach(function (l) { var v = parseFloat($(l[0]).value); if (isFinite(v) && v > 0) o.push([l[1], l[2] ? money(v) : String(Math.round(v)), l[0], v]); });
+    return o;
+  }
+  function summaryLines() {
+    var net = (last && last.highlights || []).filter(function (h) { return h.key === 'net'; })[0];
+    var L = ['Shop snapshot (beta), what they entered:']; carried().forEach(function (c) { L.push('- ' + c[0] + ': ' + c[1]); });
+    if (net) L.push('Net profit: ' + net.big + ' a month, before their own pay and tax');
+    if (last && last.headline) L.push('Snapshot said: ' + last.headline);
+    return L;
+  }
+  function saveHandoff() {
+    var data = {}; carried().forEach(function (c) { data[c[2]] = c[3]; });
+    try { localStorage.setItem(HK, JSON.stringify({ v: 1, at: new Date().toISOString(), inputs: data, headline: last && last.headline || '', story: last && last.story || '' })); } catch (e) {}
+  }
+  function clearHandoff() { try { localStorage.removeItem(HK); } catch (e) {} }
+  function chatHref() {
+    var base = 'mailto:chris@thecoffeenumbers.com?subject=' + encodeURIComponent('Chat about a health check');
+    if (!$('shareSnap').checked || !last || last.status === 'incomplete') return base;
+    return base + '&body=' + encodeURIComponent(['Hi Chris,', '', "I'd like to talk through a health check.", ''].concat(summaryLines()).join('\n'));
+  }
+  function refreshChat() { var a = $('chatHC'); if (a) a.setAttribute('href', chatHref()); }
+  function showPreview() {
+    var rows = carried().map(function (c) { return '<li><span>' + esc(c[0]) + '</span><b>' + esc(c[1]) + '</b></li>'; }).join('');
+    var mail = ['To: chris@thecoffeenumbers.com', 'Subject: Health check: snapshot numbers attached', '', 'Hi Chris,', '', 'I started the health check.', 'On my mind: (their answer)', 'Suggested start: (the recommended start)', 'Route chosen: A 30-minute chat with Chris', ''].concat(summaryLines()).join('\n');
+    $('hcPrev').innerHTML = '<div class="tag">Preview only: what happens next on the health check page</div>' +
+      '<div class="carried"><h4>We have pulled in your shop snapshot numbers</h4><p class="mini">Saved on this device only. They are added to the email if you choose a chat with Chris.</p><ul>' + rows + '</ul>' +
+      '<p class="mini" style="margin-top:10px"><button type="button" class="link" id="hcFresh">Start fresh instead</button> clears them.</p></div>' +
+      '<p class="mini"><b>The health check questions stay as they are,</b> because they are about what data you have, not your numbers. Chris starts the chat already knowing your position.</p>' +
+      '<div class="tag">What would arrive in your inbox if they choose a chat</div><div class="mail">' + esc(mail) + '</div>';
+    $('hcPrev').hidden = false;
+    var f = $('hcFresh'); if (f) f.onclick = function () { clearHandoff(); $('shareSnap').checked = false; refreshChat(); $('hcPrev').innerHTML = '<p class="mini">Cleared. The health check would start with no saved numbers.</p>'; };
+    $('hcPrev').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  $('shareSnap').addEventListener('change', function () { track('handoff_tick', { on: this.checked }); if (!this.checked) clearHandoff(); refreshChat(); $('hcPrev').hidden = true; });
+  $('startHC').addEventListener('click', function (e) {
+    if ($('shareSnap').checked) saveHandoff(); else clearHandoff();
+    if (!LIVE) { e.preventDefault(); if ($('shareSnap').checked) showPreview(); else { $('hcPrev').innerHTML = '<div class="tag">Preview only</div><p class="mini">Not ticked, so nothing is saved. The health check would open blank.</p>'; $('hcPrev').hidden = false; } }
+  });
+  $('chatHC').addEventListener('click', refreshChat);
+  FIELDS.forEach(function (id) { $(id).addEventListener('input', refreshChat); });
   render();
 })();
 </script>
